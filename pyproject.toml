@@ -14,6 +14,8 @@ requires-python = ">=3.10"
 dependencies = []
 
 [project.optional-dependencies]
+# Backing-track alignment (gp_utils.sync). ffmpeg/ffprobe on PATH are also recommended.
+sync = ["numpy>=1.24", "scipy>=1.10", "librosa>=0.10"]
 test = ["pytest"]
 
 [project.urls]

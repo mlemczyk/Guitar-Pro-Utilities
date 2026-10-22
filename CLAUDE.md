@@ -22,6 +22,14 @@ change here changes that project's results.
 - Keep the parser standard-library only. Heavier tools declare optional
   extras in `pyproject.toml`.
 
+## Before changing the sync tools
+
+Read `gp_utils/sync/README.md`. The write gate (`diag ≥ 0.95` and
+`cost ≤ 0.40`) is mandatory and is chosen on the worst accepted error, not
+the median: never loosen it to sync more tabs. `write_sync` is the only
+writer: dry run by default, a backup before every write, a journal for
+`--undo`, and no delete path. Keep it that way.
+
 ## Before changing the parser
 
 Read the module docstring of `gp_utils/parser.py`, in particular PITFALLS.
