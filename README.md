@@ -113,7 +113,7 @@ rules it works to here.
 Part of one personal project: recording bass covers along to Guitar Pro tabs,
 scoring them, and matching my rig's tone to the original recordings.
 
-- [Recording Footswitch](https://github.com/mlemczyk/footswitch): the
+- [Recording Footswitch](https://github.com/mlemczyk/Recording-Footswitch): the
   four-button USB footswitch that starts, stops and discards takes hands-free.
 - [Bass Guitar Equipment Analysis](https://github.com/mlemczyk/Bass-Guitar-Equipment-Analysis):
   measurements and fitted models of the rig's pedals, made by re-amping test
