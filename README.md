@@ -1,6 +1,15 @@
 # Guitar Pro Utilities
 
-Python tools for Guitar Pro 8 (`.gp`) tab files, built around bass tabs:
+[![tests](https://github.com/mlemczyk/Guitar-Pro-Utilities/actions/workflows/tests.yml/badge.svg)](https://github.com/mlemczyk/Guitar-Pro-Utilities/actions/workflows/tests.yml)
+
+By Michal Lemczyk.
+
+Python tools for Guitar Pro 8 (`.gp`) tab files, built around bass tabs. I
+practise by recording bass covers along to Guitar Pro playback, and these are
+the pieces that make that work across a library of about 1,500 tabs: reading
+a tab's bass line with exact timing, lining a tab up with its real recording,
+embedding that recording as the backing track, and ranking tabs by how hard
+they are to play.
 
 | module | what it does |
 |---|---|
@@ -84,6 +93,32 @@ python -m pytest
 The tests build small `.gp` files in code. No real tabs are included: tabs
 are their authors' transcriptions, and this repo does not redistribute them.
 
+## How this was built
+
+I set the goals, made the design calls and checked the results, including
+opening the tools' output in Guitar Pro. The code was developed with
+[Claude Code](https://claude.com/claude-code), Anthropic's AI coding agent,
+over a long-running private project, and moved into this repo by it under
+one rule: the output must not change. Each tool was checked against the
+original on a library of 1,551 real tabs: parsed notes, `.mid` files and
+difficulty measurements identical on every tab, and alignments, sync points
+and rewritten `score.gpif` bytes identical on a 24-tab sample. The injector,
+rewritten to write exactly what Guitar Pro writes, was compared against 272
+files Guitar Pro had produced. Commits it
+helped write carry a `Co-Authored-By: Claude` line; `CLAUDE.md` holds the
+rules it works to here.
+
+## Related projects
+
+Part of one personal project: recording bass covers along to Guitar Pro tabs,
+scoring them, and matching my rig's tone to the original recordings.
+
+- [Recording Footswitch](https://github.com/mlemczyk/footswitch): the
+  four-button USB footswitch that starts, stops and discards takes hands-free.
+- [Bass Guitar Equipment Analysis](https://github.com/mlemczyk/Bass-Guitar-Equipment-Analysis):
+  measurements and fitted models of the rig's pedals, made by re-amping test
+  signals through each one.
+
 ## License
 
-Public domain, under the [Unlicense](UNLICENSE).
+Public domain, under the [Unlicense](LICENSE).

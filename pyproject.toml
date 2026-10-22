@@ -7,6 +7,7 @@ name = "gp-utils"
 version = "0.1.0"
 description = "Tools for Guitar Pro 8 (.gp) bass tabs: parsing, backing-track sync and injection, bass MIDI extraction, difficulty measurement."
 readme = "README.md"
+authors = [{ name = "Michal Lemczyk" }]
 license = { text = "Unlicense" }
 requires-python = ">=3.10"
 # Everything except gp_utils.sync needs only the standard library.
