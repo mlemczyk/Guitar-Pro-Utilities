@@ -30,6 +30,16 @@ the median: never loosen it to sync more tabs. `write_sync` is the only
 writer: dry run by default, a backup before every write, a journal for
 `--undo`, and no delete path. Keep it that way.
 
+## Before changing the injector
+
+`gp_utils/inject.py` reproduces Guitar Pro's own import: `<BackingTrack>`
+after `</MasterTrack>`, `<Assets>` before `<ScoreViews>`, one element per
+line, CDATA on the names and paths. Checked by stripping the audio from 272
+tabs Guitar Pro had written and injecting it back: identical apart from the
+asset id, the file name, FramePadding and the user's own mixer/view settings.
+Keep `verify_injection()` running on every write, write no SyncPoint, and
+never write over the source.
+
 ## Before changing the parser
 
 Read the module docstring of `gp_utils/parser.py`, in particular PITFALLS.

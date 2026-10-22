@@ -6,7 +6,7 @@ Python tools for Guitar Pro 8 (`.gp`) tab files, built around bass tabs:
 |---|---|---|
 | `gp_utils.parser` | Reads a `.gp` file and returns its bass track as notes with absolute start/end times, MIDI pitch, string and fret. Expands repeats and alternate endings, and follows audio sync points | **here** |
 | [`gp_utils.sync`](gp_utils/sync/README.md) | Aligns a tab to its embedded backing track (chroma DTW, gated) and writes Guitar Pro sync points, with backups and undo | **here** |
-| backing-track injection | Embeds an audio file in a `.gp` as its backing track | moving in |
+| `gp_utils.inject` | Embeds an audio file in a `.gp` as its backing track, writing exactly what Guitar Pro writes; batch mode matches tabs to audio files by name | **here** |
 | bass MIDI extraction | Writes the bass track out as a `.mid` file | moving in |
 | difficulty tagging | Scores how hard a bass tab is to play, from the notes alone | moving in |
 
