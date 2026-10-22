@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gp-utils"
+version = "0.1.0"
+description = "Tools for Guitar Pro 8 (.gp) tabs: parsing, backing-track sync and injection, bass MIDI extraction, difficulty tagging."
+readme = "README.md"
+license = { text = "Unlicense" }
+requires-python = ">=3.10"
+# The parser needs only the standard library. Heavier tools declare
+# optional extras as they are added (e.g. [sync] for librosa).
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.urls]
+Repository = "https://github.com/mlemczyk/Guitar-Pro-Utilities"
+
+[tool.setuptools.packages.find]
+include = ["gp_utils*"]

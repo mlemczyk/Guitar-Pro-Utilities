@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.venv/
+
+# Tabs and audio are never committed: tests build their .gp files in code.
+*.gp
+*.gpif
+*.mp3
+*.wav
+*.ogg
+*.flac
