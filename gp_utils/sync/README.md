@@ -72,7 +72,7 @@ Getting any of these wrong produces a confident, plausible, wrong result.
 6. **A negative `FrameOffset` never occurs** in real files, so the writer
    clamps at zero.
 
-## ⚠ Never re-serialize score.gpif with ElementTree
+## ⚠ Never re-serialise score.gpif with ElementTree
 
 An early writer parsed the GPIF with `ET.fromstring`, appended automations
 and wrote it back with `ET.tostring`. Guitar Pro displayed the sync points

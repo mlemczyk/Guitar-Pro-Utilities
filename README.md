@@ -17,7 +17,7 @@ they are to play.
 | [`gp_utils.sync`](gp_utils/sync/README.md) | Aligns a tab to its embedded backing track (chroma DTW, gated) and writes Guitar Pro sync points, with backups and undo |
 | [`gp_utils.inject`](gp_utils/inject.py) | Embeds an audio file in a `.gp` as its backing track, writing exactly what Guitar Pro writes; batch mode matches tabs to audio files by name |
 | [`gp_utils.midi`](gp_utils/midi.py) | Writes each tab's bass track out as a standalone `.mid` file (standard library only), with repeats and sync points applied |
-| [`gp_utils.difficulty`](gp_utils/difficulty/metrics.py) | Measures how hard a bass part is: notes per minute over the bars that play, burst density, fret travel, string crossings and shifts (after re-fingering onto a 5-string), and a predicted note accuracy from a model fitted to one player's recorded takes |
+| [`gp_utils.difficulty`](gp_utils/difficulty/metrics.py) | Measures how hard a bass part is: notes per minute over the bars that play, burst density, fret travel, string crossings and shifts (after re-fingering onto a 5-string), and a predicted note accuracy from a model fitted to my own recorded takes |
 
 ## Install
 
@@ -76,10 +76,10 @@ python -m gp_utils.midi TABS_DIR OUT_DIR
 
 `predicted_accuracy_pct` comes from a per-note logistic model whose fitted
 constants are in [`gp_utils/difficulty/weights.json`](gp_utils/difficulty/weights.json),
-with the date and data of the fit. It was calibrated on 82 recorded takes of
-42 songs by one fingerstyle player on a 5-string bass, scored by a
+with the date and data of the fit. It was calibrated on 82 of my own recorded
+takes of 42 songs, played fingerstyle on a 5-string bass and scored by a
 note-matching scorer. Use it to rank tabs by difficulty; its absolute
-percentages are that player's. The file is updated when the model is refit,
+percentages are mine, not yours. The file is updated when the model is refit,
 and its `measure_version` changes with it, so anything caching the output
 should key on `gp_utils.difficulty.MEASURE_VERSION`.
 
