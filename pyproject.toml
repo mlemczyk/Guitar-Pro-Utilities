@@ -5,12 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "gp-utils"
 version = "0.1.0"
-description = "Tools for Guitar Pro 8 (.gp) tabs: parsing, backing-track sync and injection, bass MIDI extraction, difficulty tagging."
+description = "Tools for Guitar Pro 8 (.gp) bass tabs: parsing, backing-track sync and injection, bass MIDI extraction, difficulty measurement."
 readme = "README.md"
 license = { text = "Unlicense" }
 requires-python = ">=3.10"
-# The parser needs only the standard library. Heavier tools declare
-# optional extras as they are added (e.g. [sync] for librosa).
+# Everything except gp_utils.sync needs only the standard library.
 dependencies = []
 
 [project.optional-dependencies]

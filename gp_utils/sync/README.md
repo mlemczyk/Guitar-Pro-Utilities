@@ -31,10 +31,15 @@ Install with `pip install -e .[sync]` (numpy, scipy, librosa). ffmpeg and
 ffprobe on PATH are strongly recommended (see `audio_io`).
 
 ```bash
-python -m gp_utils.sync.write_sync "Artist - Title.gp"          # dry run
-python -m gp_utils.sync.write_sync "Artist - Title.gp" --apply  # write, with backup
-python -m gp_utils.sync.write_sync --undo <batch-label> --apply
+python -m gp_utils.sync.write_sync "Artist - Title.gp"                 # dry run
+python -m gp_utils.sync.write_sync "Artist - Title.gp" --apply         # write in place, with backup
+python -m gp_utils.sync.write_sync "Artist - Title.gp" --out copy.gp --apply   # write a copy
+python -m gp_utils.sync.write_sync --undo --apply                      # restore the last batch
 ```
+
+Writing in place over a tab that already has hand-placed sync points is
+refused unless `--overwrite` is given (an `--out` copy is always allowed). `undo_last(batch_label=...)` in Python restores an
+earlier batch by its label.
 
 Backups and the undo journal go to `$GP_UTILS_SYNC_STATE`, else
 `./gp_sync_state/`. A caller can also set `write_sync.BACKUP_DIR` and
