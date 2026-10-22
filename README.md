@@ -8,10 +8,21 @@ Python tools for Guitar Pro 8 (`.gp`) tab files, built around bass tabs:
 | [`gp_utils.sync`](gp_utils/sync/README.md) | Aligns a tab to its embedded backing track (chroma DTW, gated) and writes Guitar Pro sync points, with backups and undo | **here** |
 | `gp_utils.inject` | Embeds an audio file in a `.gp` as its backing track, writing exactly what Guitar Pro writes; batch mode matches tabs to audio files by name | **here** |
 | `gp_utils.midi` | Writes each tab's bass track out as a standalone `.mid` file (standard library only), with repeats and sync points applied | **here** |
-| difficulty tagging | Scores how hard a bass tab is to play, from the notes alone | moving in |
+| [`gp_utils.difficulty`](gp_utils/difficulty/metrics.py) | Measures how hard a bass part is: notes per minute over the bars that play, burst density, fret travel, string crossings and shifts (after re-fingering onto a 5-string), and a predicted note accuracy from a model fitted to one player's recorded takes | **here** |
 
-The tools are being moved here one at a time from a private project, and
-this table shows what has arrived.
+The tools were moved here from a private project, and this table shows what
+has arrived.
+
+### About the difficulty prediction
+
+`predicted_accuracy_pct` comes from a per-note logistic model whose fitted
+constants are in [`gp_utils/difficulty/weights.json`](gp_utils/difficulty/weights.json),
+with the date and data of the fit. It was calibrated on 82 recorded takes of
+42 songs by one fingerstyle player on a 5-string bass, scored by a
+note-matching scorer. Use it to rank tabs by difficulty; its absolute
+percentages are that player's. The file is updated when the model is refit,
+and its `measure_version` changes with it, so anything caching the output
+should key on `gp_utils.difficulty.MEASURE_VERSION`.
 
 ## Install
 

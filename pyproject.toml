@@ -23,3 +23,6 @@ Repository = "https://github.com/mlemczyk/Guitar-Pro-Utilities"
 
 [tool.setuptools.packages.find]
 include = ["gp_utils*"]
+
+[tool.setuptools.package-data]
+"gp_utils.difficulty" = ["weights.json"]

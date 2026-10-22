@@ -1,0 +1,27 @@
+{
+  "measure_version": "11",
+  "v11": {
+    "shape": "cap+sus+pitch",
+    "intercept": 5.2474,
+    "coef": {
+      "speed_cap": -0.6177,
+      "sustained": 0.2204,
+      "sus_over": -0.4055,
+      "distinct": -0.2873,
+      "interval": -0.1243
+    },
+    "extras_per_sec": 0.1178
+  },
+  "v10_bar_curve": {
+    "shape": "knee_rate",
+    "plateau": 0.9497,
+    "knee": 4.24,
+    "decay": 7.893
+  },
+  "fit": {
+    "date": "2026-10-20",
+    "data": "82 takes of 42 songs, 58,324 reference notes, one player (fingerstyle, 5-string B-E-A-D-G)",
+    "target": "note accuracy, correct / (reference + extra)",
+    "validation": "leave-one-song-out: song MAE 6.44 points, Spearman +0.795"
+  }
+}

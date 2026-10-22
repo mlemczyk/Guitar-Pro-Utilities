@@ -40,6 +40,15 @@ asset id, the file name, FramePadding and the user's own mixer/view settings.
 Keep `verify_injection()` running on every write, write no SyncPoint, and
 never write over the source.
 
+## Before changing the difficulty measure
+
+`gp_utils/difficulty/weights.json` holds the fitted constants and is written
+by the private project's refit, not by hand. Any change that moves a number
+`measure()` returns (a feature definition, `refinger`'s costs, SHIFT_FRETS,
+the burst window) must bump `measure_version` in that file, or every cached
+measurement downstream silently goes stale. Never refit or retune the model
+here: it is calibrated to recorded takes that are not in this repo.
+
 ## Before changing the parser
 
 Read the module docstring of `gp_utils/parser.py`, in particular PITFALLS.
