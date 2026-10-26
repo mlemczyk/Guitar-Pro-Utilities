@@ -107,3 +107,50 @@ def test_artist_title(stem, expected):
 def test_strip_leading_tags():
     assert strip_leading_tags("[Easy][Dark] A - B") == "A - B"
     assert strip_leading_tags("A [live] - B") == "A [live] - B"
+
+
+def _score(tracks):
+    """A bare GPIF root for find_bass_track: `tracks` is [(name, type,
+    notes)], each track getting one bar of `notes` single-note beats."""
+    import xml.etree.ElementTree as ET
+    track_xml, bars, voices, beats, bar_ids = [], [], [], [], []
+    for tid, (name, itype, n) in enumerate(tracks):
+        track_xml.append(f'<Track id="{tid}"><Name>{name}</Name>'
+                         f'<InstrumentSet><Type>{itype}</Type></InstrumentSet></Track>')
+        beat_ids = []
+        for _ in range(n):
+            beat_ids.append(str(len(beats)))
+            beats.append(f'<Beat id="{len(beats)}"><Notes>0</Notes></Beat>')
+        voices.append(f'<Voice id="{tid}"><Beats>{" ".join(beat_ids)}</Beats></Voice>')
+        bars.append(f'<Bar id="{tid}"><Voices>{tid} -1 -1 -1</Voices></Bar>')
+        bar_ids.append(str(tid))
+    order = " ".join(str(t) for t in range(len(tracks)))
+    return ET.fromstring(
+        f'<GPIF><MasterTrack><Tracks>{order}</Tracks></MasterTrack>'
+        f'<Tracks>{"".join(track_xml)}</Tracks>'
+        f'<MasterBars><MasterBar><Bars>{" ".join(bar_ids)}</Bars></MasterBar></MasterBars>'
+        f'<Bars>{"".join(bars)}</Bars><Voices>{"".join(voices)}</Voices>'
+        f'<Beats>{"".join(beats)}</Beats></GPIF>')
+
+
+def _picked(tracks):
+    from gp_utils.parser import find_bass_track
+    _, elem = find_bass_track(_score(tracks))
+    return elem.findtext("Name")
+
+
+def test_bassoon_is_not_a_bass():
+    assert _picked([("Vocals", "bassoon", 50), ("Flea", "electricBass", 40)]) == "Flea"
+
+
+def test_side_part_names_lose_to_the_main_part():
+    assert _picked([("Bass FX", "electricBass", 5), ("Justin", "electricBass", 40)]) == "Justin"
+    assert _picked([("Guitar 2", "electricBass", 5), ("Bass", "electricBass", 40)]) == "Bass"
+    assert _picked([("Bass Guitar", "electricBass", 9), ("Rhythm II", "electricBass", 40)]) == "Bass Guitar"
+
+
+def test_note_count_overrides_order_only_past_double():
+    assert _picked([("Riedel (Drop C)", "electricBass", 5),
+                    ("Riedel (Drop D)", "electricBass", 40)]) == "Riedel (Drop D)"
+    assert _picked([("Bass", "electricBass", 30),
+                    ("Acoustic Bass", "acousticBass", 40)]) == "Bass"

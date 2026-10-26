@@ -269,7 +269,22 @@ def find_bass_track(root):
     (seen on "Rammstein - Bestrafe Mich": a "Flake Lorenz" synthBass track
     sits before "Oliver Riedel"'s real electricBass track in document
     order). A real stringed-bass instrument type is checked first and wins
-    over a synth one regardless of document order."""
+    over a synth one regardless of document order.
+
+    "bassoon" is not a bass. Tab authors often voice a vocal melody track
+    with a bassoon, and a plain "bass" substring test picked those up
+    (Tool - Schism, Godsmack - Voodoo, Hendrix - Hey Joe all measured their
+    vocal line).
+
+    Within a tier, the first track in document order is not trusted blindly.
+    A track whose name marks it as something other than the main bass part
+    ("Bass FX", "Additional Bass", "Bass Solo", "Vocal", "Guitar 2", ...;
+    see _SIDE_PART) loses to one whose name doesn't, since authors tag
+    those with a bass instrument too. Among what is left the first track
+    wins unless another holds over twice its notes: "Rammstein - Rammlied"
+    puts a 69-note Drop C intro track ahead of the 1,043-note real part,
+    while near-equal pairs (a clean and a 5-string copy of the same line)
+    keep document order."""
     tracks_container = root.find("Tracks")
     if tracks_container is None:
         return None, None
@@ -282,19 +297,72 @@ def find_bass_track(root):
         instr_type = (instr_type_elem.text or "").strip().lower() if instr_type_elem is not None else ""
         candidates.append((tid, track_elem, name, instr_type))
 
-    for tid, elem, name, instr_type in candidates:
-        if "bass" in instr_type and "synth" not in instr_type:
-            return tid, elem
-    for tid, elem, name, instr_type in candidates:
-        if name == "bass":
-            return tid, elem
-    for tid, elem, name, instr_type in candidates:
-        if "bass" in name and "drum" not in name:
-            return tid, elem
-    for tid, elem, name, instr_type in candidates:
-        if "bass" in instr_type:
+    def is_bass_type(instr_type):
+        return "bass" in instr_type.replace("bassoon", "")
+
+    tiers = [
+        [c for c in candidates if is_bass_type(c[3]) and "synth" not in c[3]],
+        [c for c in candidates if c[2] == "bass"],
+        [c for c in candidates if "bass" in c[2].replace("bassoon", "")
+         and "drum" not in c[2] and "drum" not in c[3]],
+        [c for c in candidates if is_bass_type(c[3])],
+    ]
+    for tier in tiers:
+        if tier:
+            tid, elem, _, _ = _pick_main_part(root, tier)
             return tid, elem
     return None, None
+
+
+# Track-name words that mark a part other than the main bass line, even when
+# the author gave it a bass instrument. "guitar" is excluded after "bass "
+# so "Bass Guitar" stays a bass.
+_SIDE_PART = re.compile(
+    r"\b(vocals?|voice|vox|lyrics|(?<!bass )guitar|gtr|lead|rhythm|synth"
+    r"|keys?|key's|piano|organ|strings|fx|effects?|distortion|distorsion"
+    r"|dist|overdrive|whammy|delay|additional|addit|overdub|solo|harmonic"
+    r"|backing|chorus|misc|loops?|wah|octave)\b")
+
+
+def _pick_main_part(root, tier):
+    """The main bass part among `tier` (see find_bass_track)."""
+    plain = [c for c in tier if not _SIDE_PART.search(c[2])] or tier
+    if len(plain) == 1:
+        return plain[0]
+    counts = _note_counts(root)
+    first = plain[0]
+    best = max(plain, key=lambda c: counts.get(c[0], 0))
+    if counts.get(best[0], 0) > 2 * counts.get(first[0], 0):
+        return best
+    return first
+
+
+def _note_counts(root):
+    """{track_id: notated note count}, each bar counted once (repeats not
+    expanded, ties not merged) -- only good for comparing tracks."""
+    def by_id(container_tag, item_tag):
+        container = root.find(container_tag)
+        return {} if container is None else {
+            e.get("id"): e for e in container.findall(item_tag)}
+
+    order = (root.findtext("MasterTrack/Tracks") or "").split()
+    bars, voices, beats = by_id("Bars", "Bar"), by_id("Voices", "Voice"), by_id("Beats", "Beat")
+    counts = dict.fromkeys((int(t) for t in order), 0)
+    for mb in root.iterfind("MasterBars/MasterBar"):
+        for pos, bar_id in enumerate((mb.findtext("Bars") or "").split()):
+            if pos >= len(order) or bar_id not in bars:
+                continue
+            n = 0
+            for v_id in (bars[bar_id].findtext("Voices") or "").split():
+                voice = voices.get(v_id)
+                if voice is None:
+                    continue
+                for b_id in (voice.findtext("Beats") or "").split():
+                    beat = beats.get(b_id)
+                    if beat is not None:
+                        n += len((beat.findtext("Notes") or "").split())
+            counts[int(order[pos])] += n
+    return counts
 
 
 def parse_song(gp_path: Path) -> dict:
