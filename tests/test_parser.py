@@ -52,6 +52,19 @@ def test_alternate_endings_play_once_each(tmp_path):
     assert [b["index"] for b in song["bars"]] == [0, 1, 0, 2, 3]
 
 
+def test_multi_bar_first_ending_marked_on_its_first_bar_only(tmp_path):
+    # Primo Victoria's layout: bar 0 body, bars 1-2 = 1st ending with the mark
+    # on bar 1 only (bar 2 is the unmarked repeat end), bar 3 = 2nd ending.
+    bars = [four_quarters(28), four_quarters(33), four_quarters(38),
+            four_quarters(43), four_quarters(28)]
+    extra = {0: REPEAT_START,
+             1: "<AlternateEndings>1</AlternateEndings>",
+             2: REPEAT_END,
+             3: "<AlternateEndings>2</AlternateEndings>"}
+    song = parse_song(build_gp(tmp_path / "t.gp", bars, masterbar_extra=extra))
+    assert [b["index"] for b in song["bars"]] == [0, 1, 2, 0, 3, 4]
+
+
 def test_decorative_first_ending_is_a_plain_repeat(tmp_path):
     bars = [four_quarters(28), four_quarters(33), four_quarters(38)]
     extra = {0: REPEAT_START, 1: REPEAT_END + "<AlternateEndings>1</AlternateEndings>"}

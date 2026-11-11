@@ -74,7 +74,9 @@ PITFALLS, each of which once produced plausible but wrong timings:
     repeat without them plays the 1st ending on every pass and the 2nd once
     more on top: one bar too many per volta. About 6% of tabs use them. A
     "1." bracket with no "2." anywhere is decorative, and is treated as a
-    plain repeat.
+    plain repeat. A bracket over several bars is marked on its first bar
+    only: the unmarked bars after it, up to the repeat barline, are in the
+    same ending, not the body.
 
   * Sync-point bar index. A SyncPoint automation's `<Bar>` is an index into
     the EXPANDED PLAYBACK ORDER, not a MasterBar index. The two are equal in
@@ -177,6 +179,26 @@ def _alternate_ending_mask(masterbar):
         return None
 
 
+def _ending_masks(masterbars, endings):
+    """The pass bitmask of each bar in an ending group, with an unmarked bar
+    inheriting the mask of the nearest marked bar before it.
+
+    Guitar Pro stores a volta bracket that spans several bars as one
+    `<AlternateEndings>` on the bracket's FIRST bar only. In "Sabaton -
+    Primo Victoria" bars 84-87 repeat, bar 86 carries "1", the repeat-end
+    bar 87 carries nothing, and bar 88 carries "2": the record plays
+    84 85 86 87 84 85 88. Reading bar 87 as a body bar played 86 and 87 on
+    both passes, two bars too many (found from a cover, 2026-11-10; 47
+    spans in 32 library tabs are written this way)."""
+    masks, current = [], 0
+    for e in endings:
+        mk = _alternate_ending_mask(masterbars[e])
+        if mk is not None:
+            current = mk
+        masks.append(current)
+    return masks
+
+
 def _expand_repeats(masterbars):
     """Returns the actual playback order of masterbar indices (a list of
     ints into `masterbars`, with repeated spans appearing more than once),
@@ -187,11 +209,13 @@ def _expand_repeats(masterbars):
     twice, i.e. the span repeats once more after the first pass), which
     matches a Guitar Pro-drawn "x2" repeat and standard notation convention.
 
-    Alternate (1st/2nd/...) endings are expanded. The ending group is
-    the trailing run of `<AlternateEndings>` bars at the close of the span
-    plus the run of them immediately following the repeat barline; the bars
-    before it are the body. Each pass replays the body and then only those
-    ending bars whose mask has that pass's bit set.
+    Alternate (1st/2nd/...) endings are expanded. The ending group runs
+    from the first `<AlternateEndings>` bar inside the span to the repeat
+    barline, plus the run of them immediately following it; the bars before
+    it are the body. An unmarked bar in the group shares the mask of the
+    marked bar before it (Guitar Pro marks only a bracket's first bar; see
+    `_ending_masks`). Each pass replays the body and then only those ending
+    bars whose mask has that pass's bit set.
 
     **A volta bracket only counts as a real alternate ending when at least
     one `<AlternateEndings>` bar follows the repeat barline.** A "1."
@@ -236,18 +260,22 @@ def _expand_repeats(masterbars):
                 order.extend(list(range(start_idx, idx + 1)) * count)
                 idx += 1
             else:
-                first_ending = idx + 1
-                while (first_ending - 1 > start_idx
-                       and _alternate_ending_mask(masterbars[first_ending - 1]) is not None):
-                    first_ending -= 1
+                # The ending group starts at the FIRST marked bar inside the
+                # span, not at the first bar of a contiguous marked run: Guitar
+                # Pro marks a multi-bar volta on its first bar only, and the
+                # unmarked bars after it, up to the repeat barline, belong to
+                # the same bracket (see `_ending_masks`).
+                marked = [j for j in range(start_idx + 1, idx + 1)
+                          if _alternate_ending_mask(masterbars[j]) is not None]
+                first_ending = marked[0] if marked else idx + 1
                 body = list(range(start_idx, first_ending))
                 endings = list(range(first_ending, last_ending + 1))
-                passes = max(count, max((_alternate_ending_mask(masterbars[e]) or 0).bit_length()
-                                        for e in endings))
+                masks = _ending_masks(masterbars, endings)
+                passes = max(count, max(mk.bit_length() for mk in masks))
                 for pass_no in range(passes):
                     order.extend(body)
-                    for e in endings:
-                        if (_alternate_ending_mask(masterbars[e]) or 0) >> pass_no & 1:
+                    for e, mk in zip(endings, masks):
+                        if mk >> pass_no & 1:
                             order.append(e)
                 idx = last_ending + 1
             start_idx = None
